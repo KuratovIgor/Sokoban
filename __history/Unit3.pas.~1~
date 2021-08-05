@@ -1,0 +1,38 @@
+unit Unit3;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls;
+
+type
+  THelpForm = class(TForm)
+    Image1: TImage;
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  HelpForm: THelpForm;
+
+implementation
+
+{$R *.dfm}
+
+uses Unit2;
+
+procedure THelpForm.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = 27 then
+    Begin
+      HelpForm.Hide;
+      MenuForm.Show;
+    End;
+end;
+
+end.

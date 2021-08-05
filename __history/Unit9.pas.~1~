@@ -1,0 +1,197 @@
+unit Unit9;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Buttons,
+  Vcl.Imaging.pngimage;
+
+type
+  TLevel3Form = class(TForm)
+    Panel1: TPanel;
+    Label1: TLabel;
+    Label2: TLabel;
+    Teleport_Time_3: TTimer;
+    Delay_3: TTimer;
+    Game_Time_3: TTimer;
+    Time_3: TLabel;
+    Pole1: TImage;
+    Pole2: TImage;
+    Pole3: TImage;
+    Pole5: TImage;
+    Pole4: TImage;
+    Pole12: TImage;
+    Pole9: TImage;
+    Pole7: TImage;
+    Pole10: TImage;
+    Pole6: TImage;
+    Pole8: TImage;
+    Pole13: TImage;
+    Pole11: TImage;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    Step_Label: TLabel;
+    Label7: TLabel;
+    Label8: TLabel;
+    Star1_3: TImage;
+    Star2_3: TImage;
+    Star3_3: TImage;
+    Image1: TImage;
+    Image2: TImage;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+const
+       count_pers = 12;
+       count_pole = 6;
+       n = 6;
+       h = 65;
+       x0 = 425;
+       y0 = 130;
+
+var Location_3: array [1..n,1..n] of Integer =                           //1 - стена
+                                               ((1,1,1,1,1,5),        //2 - место для ящика
+                                                (1,0,0,0,1,1),       //3 - ящик
+                                                (1,0,0,3,4,1),      //4 - персонаж
+                                                (1,1,3,0,2,1),     //5 - невидимый участок массива
+                                                (5,1,0,0,2,1),    //6 - телепорт_1
+                                                (5,1,1,1,1,1));   //7 - телепорт_2
+
+
+const Player_Images_3: array [1..count_pers] of String = ('staydown.png','down1.png','down2.png',
+'stayleft.png','left1.png','left2.png','stayright.png','right1.png','right2.png',
+'stayup.png','up1.png','up2.png');
+
+const Pole_Images_3: array [1..count_pole] of String = ('red_wall.png','ground_brown.png',
+'crate_green.png','tochka_red.png','teleport_ground_gr.png','teleport_ground_gr2.png');
+
+var
+  Level3Form: TLevel3Form;
+  Pole_3: array [1..n,1..n] of TImage;
+  Bt_3: array [1..n,1..n] of TBitBtn;
+  Map_3: TBitMap;
+  i_pers, j_pers, dy, dx, buf, a, count_box, Seconds, Animation, Step, count_stars,
+  dx_steps, dy_steps, buf_tel: Integer;
+  down_press, up_press, right_press, left_press, Box, LookLeft, LookDown, Teleport_On,
+  Auto_On, Press_1, Press_2, Teleport_using, Auto_using, Level3_Up, Already_Press: Boolean;
+
+implementation
+
+{$R *.dfm}
+
+procedure TLevel3Form.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Application.Terminate;
+end;
+
+procedure TLevel3Form.FormCreate(Sender: TObject);
+var i, j: Integer;
+begin
+  Map_3 := TBitMap.Create;
+  for i := 1 to n do
+    for j := 1 to n do
+      Begin
+        Pole_3[j,i] := TImage.Create(Level3Form);
+        Pole_3[j,i].Parent := Level3Form;
+        Pole_3[j,i].Width := h;
+        Pole_3[j,i].Height := h;
+        Pole_3[j,i].Left := x0 + (i - 1) * h;
+        Pole_3[j,i].Top := y0 + (j - 1) * h;
+        Pole_3[j,i].Visible := False;
+      End;
+
+  for i := 1 to n do
+    for j := 1 to n do
+      Begin
+        Bt_3[j,i] := TBitBtn.Create(Level3Form);
+        Bt_3[j,i].Parent := Level3Form;
+        Bt_3[j,i].Width := h;
+        Bt_3[j,i].Height := h;
+        Bt_3[j,i].Left := x0 + (j - 1) * h;
+        Bt_3[j,i].Top := y0 + (i - 1) * h;
+        Bt_3[j,i].Caption := '';
+        Bt_3[j,i].Visible :=  False;
+      End;
+
+  Level3Form.Repaint;
+  for i := 1 to n do
+    for j := 1 to n do
+      Begin
+        Bt_3[j,i].Hide;
+      End;
+
+  for i := 1 to n do
+    for j := 1 to n do
+      Begin
+        case Location_3[j,i] of
+          1:
+             Begin
+               Pole_3[j,i].Picture.LoadFromFile(Pole_Images_3[1]);
+               Pole_3[j,i].Transparent := True;
+               Pole_3[j,i].Visible := True;
+             End;
+          2:
+             Begin
+               Pole_3[j,i].Picture.LoadFromFile(Pole_Images_3[4]);
+               Pole_3[j,i].Transparent := True;
+               Pole_3[j,i].Visible := True;
+             End;
+          3:
+             Begin
+               Pole_3[j,i].Picture.LoadFromFile(Pole_Images_3[3]);
+               Pole_3[j,i].Transparent := True;
+               Pole_3[j,i].Visible := True;
+             End;
+          4:
+             Begin
+               i_pers := i;
+               j_pers := j;
+               dy := 0;
+               dx := 0;
+               Pole_3[j,i].Picture.LoadFromFile(Player_Images_3[1]);
+               Pole_3[j,i].Transparent := True;
+               Pole_3[j,i].Visible := True;
+             End;
+          6:
+             Begin
+               Pole_3[j,i].Picture.LoadFromFile(Pole_Images_3[5]);
+               Pole_3[j,i].Transparent := True;
+               Pole_3[j,i].Visible := True;
+               Pole_3[j,i].SendToBack;
+             End;
+          7:
+             Begin
+               Pole_3[j,i].Picture.LoadFromFile(Pole_Images_3[6]);
+               Pole_3[j,i].Transparent := True;
+               Pole_3[j,i].Visible := True;
+               Pole_3[j,i].SendToBack;
+             End;
+        end;
+      End;
+
+  Pole1.SendToBack;
+  Pole1.SendToBack;
+  Pole2.SendToBack;
+  Pole3.SendToBack;
+  Pole4.SendToBack;
+  Pole5.SendToBack;
+  Pole6.SendToBack;
+  Pole7.SendToBack;
+  Pole8.SendToBack;
+  Pole9.SendToBack;
+  Pole10.SendToBack;
+  Pole11.SendToBack;
+  Pole12.SendToBack;
+  Pole13.SendToBack;
+  Seconds := 60;
+  count_stars := 3;
+end;
+
+end.

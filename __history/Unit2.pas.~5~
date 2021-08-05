@@ -1,0 +1,103 @@
+unit Unit2;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls;
+
+type
+  TMenuForm = class(TForm)
+    Menu: TImage;
+    Arrow: TImage;
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  MenuForm: TMenuForm;
+  n_kurs: Integer;
+
+implementation
+
+{$R *.dfm}
+
+uses Unit1, Unit3, Unit4;
+
+procedure TMenuForm.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Application.Terminate;
+end;
+
+procedure TMenuForm.FormCreate(Sender: TObject);  //Variables
+begin
+  n_kurs := 0;
+end;
+
+procedure TMenuForm.FormKeyDown(Sender: TObject; var Key: Word;  //Cursor control.
+  Shift: TShiftState);
+begin
+  if Key = 38 then              //Key up.
+    Begin
+      if n_kurs = 0 then
+        Begin                                 {********************************}
+          Arrow.Top := Arrow.Top - 80;        {                                }
+          Arrow.Left := Arrow.Left + 25;      { If cursor is near highest point}
+          Arrow.Top := Arrow.Top + 80;        { it can't move up               }
+          Arrow.Left := Arrow.Left - 25;      {                                }
+        End                                   {********************************}
+      else
+        Begin                              {****************}
+          Arrow.Top := Arrow.Top - 80;     {*Move cursor up*}
+          Arrow.Left := Arrow.Left + 25;   {****************}
+          Dec(n_kurs);          //Cursor position.
+        End;
+    End;
+  if Key = 40 then                    //Key Down
+    Begin
+      if n_kurs = 3 then
+        Begin                                {*******************************}
+          Arrow.Top := Arrow.Top + 80;       {                               }
+          Arrow.Left := Arrow.Left - 25;     { If cursor is near lowest point}
+          Arrow.Top := Arrow.Top - 80;       { it can't move down            }
+          Arrow.Left := Arrow.Left + 25;     {                               }
+        End                                  {*******************************}
+      else
+        Begin                               {******************}
+          Arrow.Top := Arrow.Top + 80;      {*Move cursor down*}
+          Arrow.Left := Arrow.Left - 25;    {******************}
+          Inc(n_kurs);         //Cursor position
+        End;
+    End;
+  if Key = 13 then           //Key ENTER
+    Begin
+      case n_kurs of
+      0:
+           Begin                     {***********************}
+             MenuForm.Hide;          {    Game               }
+             Level1Form.Show;       {            point      }
+           End;                      {***********************}
+      1:
+           Begin                     {***********************}
+             MenuForm.Hide;          {    Load               }
+             LoadForm.Show;          {            point      }
+           End;                      {***********************}
+      2:
+           Begin                     {***********************}
+             MenuForm.Hide;          {    Help               }
+             HelpForm.Show;          {            point      }
+           End;                      {***********************}
+      3:
+           Begin                     {***********************}
+             MenuForm.Hide;          {    E    X    I    T   }
+           End;                      {***********************}
+      end;
+    End;
+end;
+
+end.

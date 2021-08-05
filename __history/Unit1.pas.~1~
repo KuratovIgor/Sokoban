@@ -1,0 +1,71 @@
+unit Unit1;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls;
+
+type
+  TLoadForm = class(TForm)
+    LOAD: TImage;
+    Arrow: TImage;
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormCreate(Sender: TObject);
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  LoadForm: TLoadForm;
+  n_kurs: Integer;
+
+implementation
+
+{$R *.dfm}
+
+uses Unit2;
+
+procedure TLoadForm.FormCreate(Sender: TObject);
+begin
+  n_kurs := 0;
+end;
+
+procedure TLoadForm.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = 38 then
+    Begin
+      if n_kurs = 0 then
+        Begin
+          Arrow.Top := Arrow.Top - 63;
+          Arrow.Top := Arrow.Top + 63;
+        End
+      else
+        Begin
+          Arrow.Top := Arrow.Top - 63;
+          Dec(n_kurs);
+        End;
+    End;
+  if Key = 40 then
+    Begin
+      if n_kurs = 4 then
+        Begin
+          Arrow.Top := Arrow.Top + 63;
+          Arrow.Top := Arrow.Top - 63;
+        End
+      else
+        Begin
+          Arrow.Top := Arrow.Top + 63;
+          Inc(n_kurs);
+        End;
+    End;
+  if Key = 27 then
+    Begin                      {**********************************}
+      LoadForm.Hide;           {*if key is pressed LoadForm close*}
+      MenuForm.Show;           {**********************************}
+    End;
+end;
+
+end.
